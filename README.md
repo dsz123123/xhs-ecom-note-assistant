@@ -1,81 +1,155 @@
 # 薯店种草助手
 
-面向小红书电商运营的轻量桌面工具，完成：
+<p align="center">
+  面向小红书电商运营场景的 AI 内容生成与发布任务管理桌面工具
+</p>
 
-**商品录入 → AI 生成多个带货笔记版本 → 人工编辑 → 自动挂商品 → 立即或定时发布**
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-blue">
+  <img alt="PyQt5" src="https://img.shields.io/badge/UI-PyQt5-green">
+  <img alt="SQLite" src="https://img.shields.io/badge/Database-SQLite-lightgrey">
+  <img alt="Playwright" src="https://img.shields.io/badge/Automation-Playwright-orange">
+  <img alt="License" src="https://img.shields.io/badge/License-AGPL--3.0-red">
+</p>
 
-项目用于作品集和本地效率工具，刻意控制范围，不包含库存、订单、复杂数据复盘或多平台分发。
+## 项目简介
+
+小红书电商运营需要持续处理商品资料、撰写不同风格的种草内容、安排发布时间并重复完成上传操作。薯店种草助手将这些环节整合到一个本地桌面应用中，形成从商品管理、AI 文案生成、人工编辑到发布任务执行的完整工作流。
+
+项目以轻量、本地运行和人工可控为设计原则，适合作为内容运营、电商运营和桌面自动化方向的实践项目。
+
+## 解决的问题
+
+- 商品资料分散，重复整理成本较高
+- 同一商品需要编写多种表达风格的内容
+- 标题、正文、标签和图片需要频繁重复录入
+- 多账号和定时任务不便统一管理
+- 发布失败后缺少清晰的任务状态与错误记录
+
+## 核心流程
+
+```text
+商品录入
+   ↓
+AI 生成多个文案版本
+   ↓
+人工选择与编辑
+   ↓
+创建立即或定时发布任务
+   ↓
+Playwright 执行上传与商品挂载
+   ↓
+记录发布结果与异常信息
+```
 
 ## 已实现功能
 
-### 商品库
+### 商品管理
 
-- 商品名称
-- 本地主图
-- 店内商品 ID
-- 卖点
-- 标签
-- 新增、编辑、删除
+- 录入商品名称、本地主图、店内商品 ID、卖点和标签
+- 支持商品新增、编辑和删除
+- 商品资料可直接用于生成文案和创建发布任务
 
-### AI 文案
+### AI 文案生成
 
 - 一次生成种草、测评、促销三个版本
-- 可单独生成场景风格
-- OpenAI 兼容接口
-- 未配置 API Key 时使用离线演示生成器
-- 标题、正文、标签可人工修改
-- 提示词约束不虚构参数、价格、功效和销量
+- 支持单独生成场景化文案
+- 支持 OpenAI Compatible API
+- 未配置 API Key 时自动使用离线演示生成器
+- 标题、正文和标签均可人工修改
+- 提示词限制虚构商品参数、价格、功效、销量和用户反馈
 
-### 发布
+### 发布任务
 
-- Playwright 上传图文
-- 商品 ID 优先精确匹配
-- 商品名称搜索兜底
-- 挂商品失败默认停止发布
-- 可选“挂商品失败仍发布普通笔记”
-- 登录态失效检测
-- 发布结果与作品管理页二次确认
-- 错误信息写入任务记录和日志文件
-
-### 任务
-
-- 立即发布
-- 定时发布
-- 待发布、发布中、已发布、失败、已取消状态
-- 重试、取消和删除
+- 支持立即发布和定时发布
+- 支持待发布、发布中、已发布、失败和已取消状态
+- 支持任务重试、取消和删除
 - 程序异常退出后自动恢复卡住的发布中任务
-- 每次仅执行一个任务，避免并发误发
+- 单任务顺序执行，避免并发误发
 
-### 多账号
+### 自动发布
 
-- 每个账号绑定独立的 Playwright `storage_state.json`
-- 任务明确关联账号
-- 删除账号时同步删除该账号的任务
+- 使用 Playwright 上传图文内容
+- 优先使用商品 ID 匹配店铺商品
+- 商品名称作为备用搜索方式
+- 商品挂载失败时默认停止发布
+- 可选继续发布为普通笔记
+- 检测账号登录态是否失效
+- 记录发布结果、错误信息和运行日志
 
-## 页面
+### 多账号管理
 
-1. 首页生成
-2. 商品库
-3. 发布任务
-4. 设置
+- 每个账号绑定独立的 Playwright 登录态文件
+- 发布任务明确关联指定账号
+- 支持统一管理多个账号的任务
 
-## Windows 安装
+## 页面组成
+
+| 页面 | 主要用途 |
+|---|---|
+| 首页生成 | 选择商品、生成文案、编辑内容并创建任务 |
+| 商品库 | 管理商品资料和本地图片 |
+| 发布任务 | 查看任务状态、重试、取消或删除任务 |
+| 设置 | 配置 AI 接口、发布策略和账号登录态 |
+
+## 技术架构
+
+| 模块 | 技术 | 用途 |
+|---|---|---|
+| 桌面界面 | PyQt5 | 构建本地可视化操作界面 |
+| 数据存储 | SQLite | 保存商品、账号和发布任务 |
+| 浏览器自动化 | Playwright | 执行页面上传、填写和发布操作 |
+| AI 接口 | OpenAI Compatible API | 生成不同风格的电商内容 |
+| 日志 | Python logging | 记录运行状态和异常信息 |
+
+## 项目结构
+
+```text
+xhs-ecom-note-assistant/
+├── app/
+│   ├── config.py              # 应用配置与数据目录
+│   ├── database.py            # SQLite 数据访问层
+│   ├── logging_setup.py       # 日志配置
+│   ├── services/
+│   │   ├── content_service.py # AI 文案生成服务
+│   │   └── publisher.py       # Playwright 发布服务
+│   └── ui/
+│       ├── dialogs.py         # 商品与账号编辑窗口
+│       └── main_window.py     # 主窗口与页面逻辑
+├── scripts/
+│   └── save_login_state.py    # 保存账号登录态
+├── tests/
+│   └── test_core.py           # 核心流程测试
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+├── ROADMAP.md
+├── install.bat
+├── install.sh
+├── start.bat
+├── start.sh
+├── main.py
+└── requirements.txt
+```
+
+## 快速开始
+
+### Windows
 
 建议安装 64 位 Python 3.11 或 3.12。
 
-直接双击：
+双击安装：
 
 ```text
 install.bat
 ```
 
-安装完成后双击：
+安装完成后双击启动：
 
 ```text
 start.bat
 ```
 
-## macOS / Linux 安装
+### macOS / Linux
 
 ```bash
 chmod +x install.sh start.sh
@@ -85,7 +159,7 @@ chmod +x install.sh start.sh
 
 ## 保存小红书登录态
 
-先完成安装，然后运行：
+完成安装后运行：
 
 ```bash
 .venv/Scripts/python scripts/save_login_state.py
@@ -97,36 +171,21 @@ macOS / Linux：
 .venv/bin/python scripts/save_login_state.py
 ```
 
-浏览器打开后手动登录小红书创作者中心，回到终端按回车。项目目录会生成：
+浏览器打开后手动登录小红书创作者中心，回到终端按回车。项目目录会生成 `storage_state.json`。随后在程序的“设置”页添加账号并选择该文件。
 
-```text
-storage_state.json
-```
-
-在程序的“设置”页添加账号并选择该文件。
+登录态文件包含账号会话信息，请勿上传到公开仓库或发送给他人。
 
 ## AI 配置
 
-设置页填写：
+在“设置”页填写：
 
-- API Base：例如 `https://api.openai.com/v1`
+- API Base，例如 `https://api.openai.com/v1`
 - API Key
 - 模型名称
 
-也可使用提供 OpenAI 兼容接口的其他模型服务。
+项目兼容采用 OpenAI API 格式的模型服务。未填写 API Key 时仍可体验商品库、离线文案生成、任务管理和完整界面流程。
 
-不填写 API Key 仍可体验商品库、文案生成、任务管理和 UI，但离线文案只用于流程演示。
-
-## 真实发布前检查
-
-1. 使用测试账号。
-2. 账号已开通店铺，并有已上架商品。
-3. 商品库中的店内商品 ID 填写准确。
-4. 商品主图为本地存在的 JPG、PNG、JPEG 或 WEBP。
-5. 先关闭无头模式，观察一次完整发布。
-6. 默认保持“挂商品失败则停止”。
-
-## 数据位置
+## 数据与隐私
 
 运行数据默认保存在：
 
@@ -137,7 +196,7 @@ storage_state.json
 └── logs/application.log
 ```
 
-API Key 当前保存在本机配置文件中。不要上传该配置文件或登录态文件。
+商品资料、任务和账号配置默认保存在本机。API Key 当前保存在本机配置文件中，提交代码前应确认配置文件和登录态文件未被加入版本控制。
 
 ## 测试
 
@@ -145,64 +204,42 @@ API Key 当前保存在本机配置文件中。不要上传该配置文件或登
 python -m unittest discover -s tests -v
 ```
 
-测试覆盖：
+当前测试覆盖：
 
-- 商品、账号、发布任务数据闭环
+- 商品、账号和发布任务的数据闭环
 - 任务取消与重试
-- 离线三版本生成
+- 离线多版本文案生成
 
-## 项目结构
+## 适用场景
 
-```text
-xhs-ecom-note-assistant/
-├── app/
-│   ├── config.py
-│   ├── database.py
-│   ├── logging_setup.py
-│   ├── services/
-│   │   ├── content_service.py
-│   │   └── publisher.py
-│   └── ui/
-│       ├── dialogs.py
-│       └── main_window.py
-├── scripts/
-│   └── save_login_state.py
-├── tests/
-│   └── test_core.py
-├── install.bat
-├── install.sh
-├── start.bat
-├── start.sh
-├── main.py
-└── requirements.txt
-```
+- 小红书店铺日常内容运营
+- 电商运营助理的内容整理与任务管理
+- 个人卖家和小型团队的本地效率工具
+- Python 桌面应用、SQLite 和浏览器自动化学习实践
 
-## 技术栈
+## 项目亮点
 
-- Python
-- PyQt5
-- SQLite
-- Playwright
-- OpenAI 兼容接口
+- 将 AI 内容生成和浏览器自动化整合为完整桌面工作流
+- 使用分层结构拆分界面、数据、内容生成和发布服务
+- 支持无 API Key 的离线演示模式，便于展示完整流程
+- 使用本地 SQLite 保存业务数据，无需部署服务器
+- 支持任务状态恢复、失败日志和多账号隔离
+- 对高风险的商品挂载失败采用默认停止策略
 
-## 来源和许可证
+## 后续计划
 
-项目架构与桌面端思路参考：
+后续优化方向统一记录在 [ROADMAP.md](ROADMAP.md)，包括素材批量管理、任务队列增强、内容合规检查和发布可靠性提升。
 
-- `BetaStreetOmnis/xhs_ai_publisher`，其项目标注为 Apache License 2.0
+版本变化记录见 [CHANGELOG.md](CHANGELOG.md)。
 
-本项目的挂商品模块根据公开可观察的小红书创作者中心操作流程独立实现，没有复制未明确提供许可证的仓库源代码。
+## 使用说明
 
-本仓库新增代码由 5255fgh 发布，许可证为：
+小红书创作者中心页面结构调整后，自动化元素定位可能需要同步更新。项目不会绕过验证码、滑块或平台风控。定时发布要求程序保持运行。
 
-```text
-AGPL-3.0-or-later
-```
+自动发布功能在不同账号、店铺权限和平台页面版本下可能存在差异，正式使用前应先通过测试账号验证完整流程。
 
-## 已知限制
+## 许可证
 
-- 小红书创作者中心页面结构变化后，元素定位可能需要更新。
-- 当前无法绕过验证码、滑块或平台风控。
-- 定时发布要求程序持续运行。
-- 当前不采集点赞、收藏、评论、浏览或成交数据。
-- 未经真实店铺账号测试前，不应声称挂商品功能已通过所有账号环境验证。
+本项目采用 [GNU Affero General Public License v3.0 or later](LICENSE)。
+
+项目架构与桌面端实现思路参考了公开的开源项目 `BetaStreetOmnis/xhs_ai_publisher`。本项目的商品挂载与任务管理流程基于公开可观察的页面操作独立实现。
